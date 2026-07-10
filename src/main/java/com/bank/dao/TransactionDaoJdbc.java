@@ -1,6 +1,5 @@
 package com.bank.dao;
 
-import com.bank.db.Database;
 import com.bank.model.Transaction;
 import com.bank.model.TransactionType;
 
@@ -13,17 +12,11 @@ import java.util.List;
 
 public class TransactionDaoJdbc implements TransactionDao {
 
-    private final Database db;
-
-    public TransactionDaoJdbc(Database db) {
-        this.db = db;
-    }
-
     @Override
-    public void insert(Transaction transaction) {
+    public void insert(Connection c, Transaction transaction) {
         String sql = "INSERT INTO transactions "
                 + "(account_number, type, amount, balance_after) VALUES (?, ?, ?, ?)";
-        try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, transaction.getAccountNumber());
             ps.setString(2, transaction.getType().name());
             ps.setBigDecimal(3, transaction.getAmount());
@@ -35,21 +28,22 @@ public class TransactionDaoJdbc implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> findByAccountNumber(long accountNumber) {
-        String sql = "SELECT * FROM transactions WHERE account_number = ? ORDER BY id DESC";
-        return query(sql, accountNumber, null);
+    public List<Transaction> findByAccountNumber(Connection c, long accountNumber) {
+        String sql = "SELECT id, account_number, type, amount, balance_after, `timestamp` "
+                + "FROM transactions WHERE account_number = ? ORDER BY id DESC";
+        return query(c, sql, accountNumber, null);
     }
 
     @Override
-    public List<Transaction> findRecent(long accountNumber, int limit) {
-        String sql = "SELECT * FROM transactions WHERE account_number = ? "
-                + "ORDER BY id DESC LIMIT ?";
-        return query(sql, accountNumber, limit);
+    public List<Transaction> findRecent(Connection c, long accountNumber, int limit) {
+        String sql = "SELECT id, account_number, type, amount, balance_after, `timestamp` "
+                + "FROM transactions WHERE account_number = ? ORDER BY id DESC LIMIT ?";
+        return query(c, sql, accountNumber, limit);
     }
 
-    private List<Transaction> query(String sql, long accountNumber, Integer limit) {
+    private List<Transaction> query(Connection c, String sql, long accountNumber, Integer limit) {
         List<Transaction> result = new ArrayList<>();
-        try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, accountNumber);
             if (limit != null) {
                 ps.setInt(2, limit);
