@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c 'user.name=Kshitiz Panwar' -c user.email=bishtpankaj4@gmail.com commit -q -m 'Add Stage 1 design spec: database foundation *)"
+    ]
+  }
+}
