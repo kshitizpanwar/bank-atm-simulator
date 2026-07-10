@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     type           VARCHAR(20)    NOT NULL,
     amount         DECIMAL(15,2)  NOT NULL,
     balance_after  DECIMAL(15,2)  NOT NULL,
-    timestamp      TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `timestamp`    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_tx_account FOREIGN KEY (account_number)
         REFERENCES accounts(account_number)
 );

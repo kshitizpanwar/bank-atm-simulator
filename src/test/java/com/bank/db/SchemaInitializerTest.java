@@ -1,6 +1,5 @@
 package com.bank.db;
 
-import com.bank.dao.DaoException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
