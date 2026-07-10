@@ -24,8 +24,8 @@ public class UnitOfWork {
                 T result = work.apply(c);
                 c.commit();
                 return result;
-            } catch (RuntimeException e) {
-                c.rollback();
+            } catch (RuntimeException | Error e) {
+                safeRollback(c, e);
                 throw e;
             }
         } catch (SQLException e) {
@@ -38,6 +38,14 @@ public class UnitOfWork {
                     // closing best-effort; original outcome already decided
                 }
             }
+        }
+    }
+
+    private void safeRollback(Connection c, Throwable original) {
+        try {
+            c.rollback();
+        } catch (SQLException rollbackFailure) {
+            original.addSuppressed(rollbackFailure);
         }
     }
 

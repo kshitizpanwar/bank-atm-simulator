@@ -80,4 +80,14 @@ class UnitOfWorkTest {
             }));
         assertFalse(accountExists(), "write must be rolled back");
     }
+
+    @Test
+    void preservesOriginalException() {
+        RuntimeException original = new RuntimeException("original error");
+        RuntimeException thrown = assertThrows(RuntimeException.class, () ->
+            uow.execute(c -> {
+                throw original;
+            }));
+        assertSame(original, thrown, "original exception must propagate, not be replaced");
+    }
 }
