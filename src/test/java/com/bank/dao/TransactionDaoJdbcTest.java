@@ -2,6 +2,7 @@ package com.bank.dao;
 
 import com.bank.db.Database;
 import com.bank.db.SchemaInitializer;
+import com.bank.db.UnitOfWork;
 import com.bank.model.Account;
 import com.bank.model.AccountStatus;
 import com.bank.model.AccountType;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TransactionDaoJdbcTest {
 
     private static final Database db = Database.fromResource("db.test.properties");
-    private final AccountDao accountDao = new AccountDaoJdbc(db);
+    private static final UnitOfWork uow = new UnitOfWork(db);
+    private final AccountDao accountDao = new AccountDaoJdbc();
     private final TransactionDao txDao = new TransactionDaoJdbc(db);
 
     private static final long ACC = 1000000001L;
@@ -33,13 +35,18 @@ class TransactionDaoJdbcTest {
     }
 
     @BeforeEach
-    void cleanAndSeedAccount() throws Exception {
-        try (Connection c = db.getConnection(); Statement st = c.createStatement()) {
-            st.execute("DELETE FROM transactions");
-            st.execute("DELETE FROM accounts");
-        }
-        accountDao.create(new Account(ACC, "Asha", "1234", new BigDecimal("100.00"),
-                AccountType.SAVINGS, AccountStatus.ACTIVE, LocalDateTime.now()));
+    void cleanAndSeedAccount() {
+        uow.executeVoid(c -> {
+            try (Statement st = c.createStatement()) {
+                st.execute("DELETE FROM transactions");
+                st.execute("DELETE FROM accounts");
+            } catch (SQLException e) {
+                throw new DaoException("clean failed", e);
+            }
+        });
+        uow.executeVoid(c -> accountDao.create(c, new Account(ACC, "Asha", "1234",
+                new BigDecimal("100.00"), AccountType.SAVINGS, AccountStatus.ACTIVE,
+                LocalDateTime.now())));
     }
 
     private Transaction tx(TransactionType type, String amount, String balanceAfter) {

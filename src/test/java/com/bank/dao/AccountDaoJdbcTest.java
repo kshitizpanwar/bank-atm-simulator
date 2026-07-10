@@ -2,6 +2,7 @@ package com.bank.dao;
 
 import com.bank.db.Database;
 import com.bank.db.SchemaInitializer;
+import com.bank.db.UnitOfWork;
 import com.bank.model.Account;
 import com.bank.model.AccountStatus;
 import com.bank.model.AccountType;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccountDaoJdbcTest {
 
     private static final Database db = Database.fromResource("db.test.properties");
-    private final AccountDao dao = new AccountDaoJdbc(db);
+    private static final UnitOfWork uow = new UnitOfWork(db);
+    private final AccountDao dao = new AccountDaoJdbc();
 
     @BeforeAll
     static void createSchema() {
@@ -29,11 +31,15 @@ class AccountDaoJdbcTest {
     }
 
     @BeforeEach
-    void cleanTables() throws Exception {
-        try (Connection c = db.getConnection(); Statement st = c.createStatement()) {
-            st.execute("DELETE FROM transactions");
-            st.execute("DELETE FROM accounts");
-        }
+    void cleanTables() {
+        uow.executeVoid(c -> {
+            try (Statement st = c.createStatement()) {
+                st.execute("DELETE FROM transactions");
+                st.execute("DELETE FROM accounts");
+            } catch (SQLException e) {
+                throw new DaoException("clean failed", e);
+            }
+        });
     }
 
     private Account sample(long number) {
@@ -43,9 +49,9 @@ class AccountDaoJdbcTest {
 
     @Test
     void createThenFindRoundTrips() {
-        dao.create(sample(1000000001L));
+        uow.executeVoid(c -> dao.create(c, sample(1000000001L)));
 
-        Optional<Account> found = dao.findByAccountNumber(1000000001L);
+        Optional<Account> found = uow.execute(c -> dao.findByAccountNumber(c, 1000000001L));
         assertTrue(found.isPresent());
         Account a = found.get();
         assertEquals("Asha", a.getHolderName());
@@ -58,37 +64,39 @@ class AccountDaoJdbcTest {
 
     @Test
     void findByAccountNumberReturnsEmptyWhenAbsent() {
-        assertTrue(dao.findByAccountNumber(9999999999L).isEmpty());
+        assertTrue(uow.execute(c -> dao.findByAccountNumber(c, 9999999999L)).isEmpty());
     }
 
     @Test
     void findAllReturnsEveryAccount() {
-        dao.create(sample(1000000001L));
-        dao.create(sample(1000000002L));
-        List<Account> all = dao.findAll();
+        uow.executeVoid(c -> dao.create(c, sample(1000000001L)));
+        uow.executeVoid(c -> dao.create(c, sample(1000000002L)));
+        List<Account> all = uow.execute(dao::findAll);
         assertEquals(2, all.size());
     }
 
     @Test
     void updateBalancePersistsExactValue() {
-        dao.create(sample(1000000001L));
-        dao.updateBalance(1000000001L, new BigDecimal("250.75"));
-        assertEquals(0, new BigDecimal("250.75")
-                .compareTo(dao.findByAccountNumber(1000000001L).orElseThrow().getBalance()));
+        uow.executeVoid(c -> dao.create(c, sample(1000000001L)));
+        uow.executeVoid(c -> dao.updateBalance(c, 1000000001L, new BigDecimal("250.75")));
+        BigDecimal balance = uow.execute(c ->
+                dao.findByAccountNumber(c, 1000000001L).orElseThrow().getBalance());
+        assertEquals(0, new BigDecimal("250.75").compareTo(balance));
     }
 
     @Test
     void updatePinPersists() {
-        dao.create(sample(1000000001L));
-        dao.updatePin(1000000001L, "4321");
-        assertEquals("4321", dao.findByAccountNumber(1000000001L).orElseThrow().getPin());
+        uow.executeVoid(c -> dao.create(c, sample(1000000001L)));
+        uow.executeVoid(c -> dao.updatePin(c, 1000000001L, "4321"));
+        assertEquals("4321", uow.execute(c ->
+                dao.findByAccountNumber(c, 1000000001L).orElseThrow().getPin()));
     }
 
     @Test
     void updateStatusPersists() {
-        dao.create(sample(1000000001L));
-        dao.updateStatus(1000000001L, AccountStatus.BLOCKED);
-        assertEquals(AccountStatus.BLOCKED,
-                dao.findByAccountNumber(1000000001L).orElseThrow().getStatus());
+        uow.executeVoid(c -> dao.create(c, sample(1000000001L)));
+        uow.executeVoid(c -> dao.updateStatus(c, 1000000001L, AccountStatus.BLOCKED));
+        assertEquals(AccountStatus.BLOCKED, uow.execute(c ->
+                dao.findByAccountNumber(c, 1000000001L).orElseThrow().getStatus()));
     }
 }

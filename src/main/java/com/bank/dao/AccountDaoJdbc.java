@@ -1,6 +1,5 @@
 package com.bank.dao;
 
-import com.bank.db.Database;
 import com.bank.model.Account;
 import com.bank.model.AccountStatus;
 import com.bank.model.AccountType;
@@ -16,18 +15,12 @@ import java.util.Optional;
 
 public class AccountDaoJdbc implements AccountDao {
 
-    private final Database db;
-
-    public AccountDaoJdbc(Database db) {
-        this.db = db;
-    }
-
     @Override
-    public void create(Account account) {
+    public void create(Connection c, Account account) {
         String sql = "INSERT INTO accounts "
                 + "(account_number, holder_name, pin, balance, account_type, status) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, account.getAccountNumber());
             ps.setString(2, account.getHolderName());
             ps.setString(3, account.getPin());
@@ -41,9 +34,10 @@ public class AccountDaoJdbc implements AccountDao {
     }
 
     @Override
-    public Optional<Account> findByAccountNumber(long accountNumber) {
-        String sql = "SELECT * FROM accounts WHERE account_number = ?";
-        try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+    public Optional<Account> findByAccountNumber(Connection c, long accountNumber) {
+        String sql = "SELECT account_number, holder_name, pin, balance, account_type, status, created_at "
+                + "FROM accounts WHERE account_number = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, accountNumber);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(mapRow(rs)) : Optional.empty();
@@ -54,11 +48,11 @@ public class AccountDaoJdbc implements AccountDao {
     }
 
     @Override
-    public List<Account> findAll() {
-        String sql = "SELECT * FROM accounts ORDER BY account_number";
+    public List<Account> findAll(Connection c) {
+        String sql = "SELECT account_number, holder_name, pin, balance, account_type, status, created_at "
+                + "FROM accounts ORDER BY account_number";
         List<Account> result = new ArrayList<>();
-        try (Connection c = db.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
+        try (PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 result.add(mapRow(rs));
@@ -70,8 +64,8 @@ public class AccountDaoJdbc implements AccountDao {
     }
 
     @Override
-    public void updateBalance(long accountNumber, BigDecimal newBalance) {
-        runUpdate("UPDATE accounts SET balance = ? WHERE account_number = ?",
+    public void updateBalance(Connection c, long accountNumber, BigDecimal newBalance) {
+        runUpdate(c, "UPDATE accounts SET balance = ? WHERE account_number = ?",
                 ps -> {
                     ps.setBigDecimal(1, newBalance);
                     ps.setLong(2, accountNumber);
@@ -79,25 +73,25 @@ public class AccountDaoJdbc implements AccountDao {
     }
 
     @Override
-    public void updatePin(long accountNumber, String newPin) {
-        runUpdate("UPDATE accounts SET pin = ? WHERE account_number = ?",
+    public void updatePin(Connection c, long accountNumber, String newPinHash) {
+        runUpdate(c, "UPDATE accounts SET pin = ? WHERE account_number = ?",
                 ps -> {
-                    ps.setString(1, newPin);
+                    ps.setString(1, newPinHash);
                     ps.setLong(2, accountNumber);
                 }, "updatePin");
     }
 
     @Override
-    public void updateStatus(long accountNumber, AccountStatus status) {
-        runUpdate("UPDATE accounts SET status = ? WHERE account_number = ?",
+    public void updateStatus(Connection c, long accountNumber, AccountStatus status) {
+        runUpdate(c, "UPDATE accounts SET status = ? WHERE account_number = ?",
                 ps -> {
                     ps.setString(1, status.name());
                     ps.setLong(2, accountNumber);
                 }, "updateStatus");
     }
 
-    private void runUpdate(String sql, StatementBinder binder, String label) {
-        try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+    private void runUpdate(Connection c, String sql, StatementBinder binder, String label) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             binder.bind(ps);
             ps.executeUpdate();
         } catch (SQLException e) {
