@@ -51,13 +51,16 @@ class ManageAccountPresenterTest {
         String details, message, error, confirmMessage;
         List<String> history;
         boolean autoConfirm = true;
-        Runnable onBlock = () -> {}, onClose = () -> {}, onDelete = () -> {}, onBack = () -> {};
+        Runnable onBlock = () -> {}, onClose = () -> {}, onUnblock = () -> {},
+                onReopen = () -> {}, onDelete = () -> {}, onBack = () -> {};
         @Override public void showDetails(String d) { details = d; }
         @Override public void showHistory(List<String> h) { history = h; }
         @Override public void showMessage(String m) { message = m; }
         @Override public void showError(String m) { error = m; }
         @Override public void setOnBlock(Runnable h) { onBlock = h; }
         @Override public void setOnClose(Runnable h) { onClose = h; }
+        @Override public void setOnUnblock(Runnable h) { onUnblock = h; }
+        @Override public void setOnReopen(Runnable h) { onReopen = h; }
         @Override public void setOnDelete(Runnable h) { onDelete = h; }
         @Override public void setOnBack(Runnable h) { onBack = h; }
         @Override public void confirmDelete(String message, Runnable onConfirmed) {
@@ -112,6 +115,34 @@ class ManageAccountPresenterTest {
 
         assertEquals(AccountStatus.CLOSED, accounts.getAccount(a.getAccountNumber()).getStatus());
         assertNotNull(view.details);
+    }
+
+    @Test
+    void unblockReactivatesBlockedAccount() {
+        Account a = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        accounts.blockAccount(a.getAccountNumber());
+        FakeManageAccountView view = new FakeManageAccountView();
+        ManageAccountPresenter presenter =
+                new ManageAccountPresenter(view, accounts, sessionFor(a.getAccountNumber()), new FakeAdminNavigator());
+
+        presenter.unblock();
+
+        assertEquals(AccountStatus.ACTIVE, accounts.getAccount(a.getAccountNumber()).getStatus());
+        assertEquals("Account unblocked.", view.message);
+    }
+
+    @Test
+    void reopenReactivatesClosedAccount() {
+        Account a = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        accounts.closeAccount(a.getAccountNumber());
+        FakeManageAccountView view = new FakeManageAccountView();
+        ManageAccountPresenter presenter =
+                new ManageAccountPresenter(view, accounts, sessionFor(a.getAccountNumber()), new FakeAdminNavigator());
+
+        presenter.reopen();
+
+        assertEquals(AccountStatus.ACTIVE, accounts.getAccount(a.getAccountNumber()).getStatus());
+        assertEquals("Account reopened.", view.message);
     }
 
     @Test

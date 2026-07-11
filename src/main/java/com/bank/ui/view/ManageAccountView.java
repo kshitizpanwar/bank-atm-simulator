@@ -9,6 +9,8 @@ public interface ManageAccountView {
     void showError(String message);
     void setOnBlock(Runnable handler);
     void setOnClose(Runnable handler);
+    void setOnUnblock(Runnable handler);
+    void setOnReopen(Runnable handler);
     void setOnDelete(Runnable handler);
     void setOnBack(Runnable handler);
     void confirmDelete(String message, Runnable onConfirmed);

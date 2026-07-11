@@ -7,6 +7,7 @@ import com.bank.db.Database;
 import com.bank.db.SchemaInitializer;
 import com.bank.db.UnitOfWork;
 import com.bank.model.Account;
+import com.bank.model.AccountStatus;
 import com.bank.model.AccountType;
 import com.bank.security.PasswordHasher;
 import org.junit.jupiter.api.BeforeAll;
@@ -87,5 +88,22 @@ class AccountServiceAdminReadsTest {
     @Test
     void deleteAccountUnknownThrows() {
         assertThrows(AccountNotFoundException.class, () -> service.deleteAccount(1L));
+    }
+
+    @Test
+    void reactivateAccountSetsStatusActive() {
+        Account a = service.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        service.blockAccount(a.getAccountNumber());
+        service.reactivateAccount(a.getAccountNumber());
+        assertEquals(AccountStatus.ACTIVE, service.getAccount(a.getAccountNumber()).getStatus());
+
+        service.closeAccount(a.getAccountNumber());
+        service.reactivateAccount(a.getAccountNumber());
+        assertEquals(AccountStatus.ACTIVE, service.getAccount(a.getAccountNumber()).getStatus());
+    }
+
+    @Test
+    void reactivateAccountUnknownThrows() {
+        assertThrows(AccountNotFoundException.class, () -> service.reactivateAccount(1L));
     }
 }

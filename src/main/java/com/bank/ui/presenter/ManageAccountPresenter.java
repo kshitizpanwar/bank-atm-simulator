@@ -27,6 +27,8 @@ public class ManageAccountPresenter {
         this.navigator = navigator;
         view.setOnBlock(this::block);
         view.setOnClose(this::close);
+        view.setOnUnblock(this::unblock);
+        view.setOnReopen(this::reopen);
         view.setOnDelete(this::delete);
         view.setOnBack(navigator::showAllAccounts);
     }
@@ -74,6 +76,26 @@ public class ManageAccountPresenter {
 
     public void close() {
         applyStatus(false);
+    }
+
+    public void unblock() {
+        reactivate("Account unblocked.");
+    }
+
+    public void reopen() {
+        reactivate("Account reopened.");
+    }
+
+    private void reactivate(String message) {
+        try {
+            accountService.reactivateAccount(session.requireSelectedAccount());
+            view.showMessage(message);
+            load();
+        } catch (BankServiceException e) {
+            view.showError(Messages.of(e));
+        } catch (RuntimeException e) {
+            view.showError("Something went wrong. Please try again.");
+        }
     }
 
     private void applyStatus(boolean block) {

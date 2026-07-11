@@ -19,6 +19,8 @@ public class ManageAccountViewFx implements ManageAccountView {
     private final ListView<String> history = new ListView<>();
     private final Button blockButton = new Button("Block");
     private final Button closeButton = new Button("Close");
+    private final Button unblockButton = new Button("Unblock");
+    private final Button reopenButton = new Button("Reopen");
     private final Button deleteButton = new Button("Delete");
     private final Button backButton = new Button("Back");
     private final Label messageLabel = new Label();
@@ -32,10 +34,13 @@ public class ManageAccountViewFx implements ManageAccountView {
         blockButton.getStyleClass().add("danger");
         closeButton.getStyleClass().add("danger");
         deleteButton.getStyleClass().add("danger");
+        unblockButton.getStyleClass().add("success");
+        reopenButton.getStyleClass().add("success");
         backButton.getStyleClass().add("secondary");
-        HBox actions = new HBox(10, blockButton, closeButton, deleteButton, backButton);
+        HBox statusActions = new HBox(10, blockButton, closeButton, unblockButton, reopenButton);
+        HBox actions = new HBox(10, deleteButton, backButton);
         root.getChildren().addAll(new Label("Manage Account"), detailsLabel,
-                new Label("Transactions:"), history, actions, messageLabel, errorLabel);
+                new Label("Transactions:"), history, statusActions, actions, messageLabel, errorLabel);
     }
 
     public Parent getRoot() { return root; }
@@ -48,6 +53,8 @@ public class ManageAccountViewFx implements ManageAccountView {
     @Override public void showError(String message) { messageLabel.setText(""); errorLabel.setText(message); }
     @Override public void setOnBlock(Runnable handler) { blockButton.setOnAction(e -> handler.run()); }
     @Override public void setOnClose(Runnable handler) { closeButton.setOnAction(e -> handler.run()); }
+    @Override public void setOnUnblock(Runnable handler) { unblockButton.setOnAction(e -> handler.run()); }
+    @Override public void setOnReopen(Runnable handler) { reopenButton.setOnAction(e -> handler.run()); }
     @Override public void setOnDelete(Runnable handler) { deleteButton.setOnAction(e -> handler.run()); }
     @Override public void setOnBack(Runnable handler) { backButton.setOnAction(e -> handler.run()); }
 

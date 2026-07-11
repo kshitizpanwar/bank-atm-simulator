@@ -140,6 +140,13 @@ public class AccountService {
         });
     }
 
+    public void reactivateAccount(long acct) {
+        uow.executeVoid(c -> {
+            loadOrThrow(c, acct);
+            accountDao.updateStatus(c, acct, AccountStatus.ACTIVE);
+        });
+    }
+
     public void changePin(long acct, String oldPin, String newPin) {
         requireValidPin(newPin);
         uow.executeVoid(c -> {

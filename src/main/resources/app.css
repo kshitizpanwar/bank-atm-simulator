@@ -55,6 +55,18 @@
 .button.secondary:hover  { -fx-background-color: #e4eaf3; }
 .button.secondary:pressed { -fx-background-color: #d6deec; }
 
+/* ---- success buttons (Unblock, Reopen) ---- */
+.button.success {
+    -fx-background-color: linear-gradient(to bottom, #3ecf8e, #1faa6b);
+    -fx-effect: dropshadow(gaussian, rgba(31, 170, 107, 0.35), 8, 0, 0, 2);
+}
+.button.success:hover {
+    -fx-background-color: linear-gradient(to bottom, #4bd99a, #26b976);
+}
+.button.success:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1b9560, #157a4e);
+}
+
 /* ---- danger buttons (Block, Close, Delete) ---- */
 .button.danger {
     -fx-background-color: linear-gradient(to bottom, #f0655a, #e53935);
