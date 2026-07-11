@@ -1,69 +1,110 @@
-/* Modern light "bank blue" theme. Applied app-wide via the Scene stylesheet
-   loaded in App; targets JavaFX default control selectors so every screen is
-   styled without touching any view or presenter. */
+/* Modern "bank blue" theme — applied app-wide via the Scene stylesheet loaded
+   in App. Targets JavaFX default control selectors plus a few variant classes
+   (.danger, .secondary) so every screen is styled without business-logic changes. */
 
+/* ---- background & card ---- */
 .app-background {
-    -fx-background-color: #eef1f6;
-    -fx-padding: 24;
+    -fx-background-color: linear-gradient(to bottom right, #eaf1fb, #dce6f7);
+    -fx-padding: 26;
 }
 
-/* Each screen's root VBox gets the "card" class (added in App.setRoot). */
 .card {
     -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-max-width: 380;
-    -fx-max-height: 560;
-    -fx-effect: dropshadow(gaussian, rgba(20, 40, 80, 0.18), 20, 0, 0, 8);
+    -fx-background-radius: 16;
+    -fx-max-width: 400;
+    -fx-max-height: 600;
+    -fx-effect: dropshadow(gaussian, rgba(23, 43, 77, 0.20), 26, 0, 0, 10);
 }
 
+/* ---- text ---- */
 .label {
     -fx-text-fill: #2b2f36;
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
     -fx-font-size: 13px;
 }
 
+/* ---- primary buttons (default) ---- */
 .button {
-    -fx-background-color: #1a73e8;
+    -fx-background-color: linear-gradient(to bottom, #4a90e2, #1a73e8);
     -fx-text-fill: white;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 8 18 8 18;
+    -fx-background-radius: 9;
+    -fx-padding: 9 18 9 18;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(26, 115, 232, 0.35), 8, 0, 0, 2);
 }
-.button:hover  { -fx-background-color: #1765cc; }
-.button:pressed { -fx-background-color: #14559f; }
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a9bea, #2079ef);
+    -fx-effect: dropshadow(gaussian, rgba(26, 115, 232, 0.50), 12, 0, 0, 3);
+}
+.button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1765cc, #14559f);
+    -fx-effect: dropshadow(gaussian, rgba(20, 85, 159, 0.45), 6, 0, 0, 1);
+}
 
+/* ---- secondary buttons (Back, Copy) ---- */
+.button.secondary {
+    -fx-background-color: #f0f3f8;
+    -fx-text-fill: #33415c;
+    -fx-border-color: #cdd6e4;
+    -fx-border-width: 1;
+    -fx-border-radius: 9;
+    -fx-effect: null;
+}
+.button.secondary:hover  { -fx-background-color: #e4eaf3; }
+.button.secondary:pressed { -fx-background-color: #d6deec; }
+
+/* ---- danger buttons (Block, Close, Delete) ---- */
+.button.danger {
+    -fx-background-color: linear-gradient(to bottom, #f0655a, #e53935);
+    -fx-effect: dropshadow(gaussian, rgba(229, 57, 53, 0.35), 8, 0, 0, 2);
+}
+.button.danger:hover {
+    -fx-background-color: linear-gradient(to bottom, #f4756b, #ef4b47);
+}
+.button.danger:pressed {
+    -fx-background-color: linear-gradient(to bottom, #c62f2b, #a82824);
+}
+
+/* ---- inputs ---- */
 .text-field, .password-field {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-color: #f7f9fc;
+    -fx-background-radius: 9;
+    -fx-border-radius: 9;
     -fx-border-color: #d4d9e0;
     -fx-border-width: 1;
-    -fx-padding: 8;
+    -fx-padding: 9;
     -fx-font-size: 13px;
 }
 .text-field:focused, .password-field:focused {
+    -fx-background-color: white;
     -fx-border-color: #1a73e8;
     -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(26, 115, 232, 0.25), 8, 0, 0, 0);
 }
 
 .choice-box {
     -fx-background-color: #f2f4f8;
-    -fx-background-radius: 8;
-    -fx-padding: 4 8 4 8;
+    -fx-background-radius: 9;
+    -fx-padding: 4 10 4 10;
 }
 
+/* ---- lists ---- */
 .list-view {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-color: #f7f9fc;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
     -fx-border-color: #d4d9e0;
     -fx-border-width: 1;
-    -fx-background-insets: 0;
+    -fx-padding: 4;
 }
 .list-cell {
-    -fx-padding: 8;
+    -fx-padding: 8 10 8 10;
     -fx-font-size: 12px;
+    -fx-background-radius: 6;
 }
+.list-cell:filled:hover   { -fx-background-color: #eef4ff; }
 .list-cell:filled:selected {
     -fx-background-color: #d6e4ff;
     -fx-text-fill: #14315e;
