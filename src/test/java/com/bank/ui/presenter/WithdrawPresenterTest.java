@@ -1,0 +1,89 @@
+package com.bank.ui.presenter;
+
+import com.bank.dao.AccountDaoJdbc;
+import com.bank.dao.DaoException;
+import com.bank.dao.TransactionDaoJdbc;
+import com.bank.db.Database;
+import com.bank.db.SchemaInitializer;
+import com.bank.db.UnitOfWork;
+import com.bank.model.Account;
+import com.bank.model.AccountType;
+import com.bank.security.PasswordHasher;
+import com.bank.service.AccountService;
+import com.bank.ui.FakeNavigator;
+import com.bank.ui.Session;
+import com.bank.ui.view.WithdrawView;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class WithdrawPresenterTest {
+
+    private static final Database db = Database.fromResource("db.test.properties");
+    private static final UnitOfWork uow = new UnitOfWork(db);
+    private final AccountService accounts =
+            new AccountService(uow, new AccountDaoJdbc(), new TransactionDaoJdbc(), new PasswordHasher());
+
+    @BeforeAll static void schema() { SchemaInitializer.initialize(db); }
+
+    @BeforeEach
+    void clean() {
+        uow.executeVoid(c -> {
+            try (Statement st = c.createStatement()) {
+                st.execute("DELETE FROM transactions");
+                st.execute("DELETE FROM accounts");
+            } catch (SQLException e) {
+                throw new DaoException("clean failed", e);
+            }
+        });
+    }
+
+    static class FakeWithdrawView implements WithdrawView {
+        String amount = "", message, error;
+        Runnable onSubmit = () -> {}, onBack = () -> {};
+        @Override public String getAmount() { return amount; }
+        @Override public void showMessage(String m) { message = m; }
+        @Override public void showError(String m) { error = m; }
+        @Override public void setOnSubmit(Runnable h) { onSubmit = h; }
+        @Override public void setOnBack(Runnable h) { onBack = h; }
+    }
+
+    private Session sessionFor(String opening) {
+        Account a = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal(opening));
+        Session s = new Session();
+        s.setAccount(a.getAccountNumber());
+        return s;
+    }
+
+    @Test
+    void validWithdrawDecreasesBalance() {
+        Session session = sessionFor("100.00");
+        FakeWithdrawView view = new FakeWithdrawView();
+        WithdrawPresenter presenter = new WithdrawPresenter(view, accounts, session, new FakeNavigator());
+        view.amount = "30.00";
+
+        presenter.submit();
+
+        assertNull(view.error);
+        assertEquals(0, new BigDecimal("70.00").compareTo(accounts.getBalance(session.requireAccount())));
+    }
+
+    @Test
+    void overdraftShowsInsufficientFunds() {
+        Session session = sessionFor("20.00");
+        FakeWithdrawView view = new FakeWithdrawView();
+        WithdrawPresenter presenter = new WithdrawPresenter(view, accounts, session, new FakeNavigator());
+        view.amount = "50.00";
+
+        presenter.submit();
+
+        assertEquals("Insufficient funds.", view.error);
+        assertEquals(0, new BigDecimal("20.00").compareTo(accounts.getBalance(session.requireAccount())));
+    }
+}
