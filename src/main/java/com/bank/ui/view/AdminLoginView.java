@@ -5,4 +5,5 @@ public interface AdminLoginView {
     String getPassword();
     void showError(String message);
     void setOnLogin(Runnable handler);
+    void setOnBack(Runnable handler);
 }

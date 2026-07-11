@@ -13,6 +13,7 @@ public class AdminLoginViewFx implements AdminLoginView {
     private final TextField usernameField = new TextField();
     private final PasswordField passwordField = new PasswordField();
     private final Button loginButton = new Button("Login");
+    private final Button backButton = new Button("Back");
     private final Label errorLabel = new Label();
     private final VBox root = new VBox(10);
 
@@ -23,7 +24,7 @@ public class AdminLoginViewFx implements AdminLoginView {
         errorLabel.setStyle("-fx-text-fill: red;");
         Label hint = new Label("Default admin: admin / admin123 (change in production)");
         root.getChildren().addAll(new Label("Admin Login"), usernameField, passwordField,
-                loginButton, errorLabel, hint);
+                loginButton, backButton, errorLabel, hint);
     }
 
     public Parent getRoot() { return root; }
@@ -32,4 +33,5 @@ public class AdminLoginViewFx implements AdminLoginView {
     @Override public String getPassword() { return passwordField.getText(); }
     @Override public void showError(String message) { errorLabel.setText(message); }
     @Override public void setOnLogin(Runnable handler) { loginButton.setOnAction(e -> handler.run()); }
+    @Override public void setOnBack(Runnable handler) { backButton.setOnAction(e -> handler.run()); }
 }

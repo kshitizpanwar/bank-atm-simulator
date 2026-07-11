@@ -21,6 +21,7 @@ public class AdminLoginPresenter {
         this.navigator = navigator;
         this.session = session;
         view.setOnLogin(this::login);
+        view.setOnBack(navigator::showRoleSelect);
     }
 
     public void login() {

@@ -45,11 +45,12 @@ class AdminLoginPresenterTest {
 
     static class FakeAdminLoginView implements AdminLoginView {
         String username = "", password = "", error;
-        Runnable onLogin = () -> {};
+        Runnable onLogin = () -> {}, onBack = () -> {};
         @Override public String getUsername() { return username; }
         @Override public String getPassword() { return password; }
         @Override public void showError(String m) { error = m; }
         @Override public void setOnLogin(Runnable h) { onLogin = h; }
+        @Override public void setOnBack(Runnable h) { onBack = h; }
     }
 
     @Test
@@ -81,5 +82,16 @@ class AdminLoginPresenterTest {
 
         assertFalse(nav.adminMenuShown);
         assertEquals("Invalid username or password.", view.error);
+    }
+
+    @Test
+    void backReturnsToRoleSelect() {
+        FakeAdminLoginView view = new FakeAdminLoginView();
+        FakeAdminNavigator nav = new FakeAdminNavigator();
+        new AdminLoginPresenter(view, auth, nav, new AdminSession());
+
+        view.onBack.run();
+
+        assertTrue(nav.roleSelectShown);
     }
 }
