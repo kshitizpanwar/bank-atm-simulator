@@ -87,6 +87,14 @@ class OpenAccountPresenterTest {
         presenter.submit();
 
         assertEquals("PIN must be exactly 4 digits.", view.error);
+        long count = uow.execute(c -> {
+            try (Statement st = c.createStatement();
+                 var rs = st.executeQuery("SELECT COUNT(*) FROM accounts")) {
+                rs.next();
+                return rs.getLong(1);
+            } catch (SQLException e) { throw new DaoException("count", e); }
+        });
+        assertEquals(0, count);
     }
 
     @Test
