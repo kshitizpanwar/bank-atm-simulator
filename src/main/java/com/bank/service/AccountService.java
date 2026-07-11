@@ -117,6 +117,21 @@ public class AccountService {
         });
     }
 
+    public List<Account> listAllAccounts() {
+        return uow.execute(accountDao::findAll);
+    }
+
+    public Account getAccount(long acct) {
+        return uow.execute(c -> loadOrThrow(c, acct));
+    }
+
+    public List<Transaction> accountHistory(long acct) {
+        return uow.execute(c -> {
+            loadOrThrow(c, acct);
+            return transactionDao.findByAccountNumber(c, acct);
+        });
+    }
+
     public void changePin(long acct, String oldPin, String newPin) {
         requireValidPin(newPin);
         uow.executeVoid(c -> {
