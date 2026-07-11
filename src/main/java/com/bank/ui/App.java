@@ -42,6 +42,7 @@ import com.bank.ui.view.WithdrawViewFx;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class App extends Application implements Navigator, AdminNavigator {
@@ -73,10 +74,15 @@ public class App extends Application implements Navigator, AdminNavigator {
     }
 
     private void setRoot(Parent root) {
+        root.getStyleClass().add("card");
+        StackPane background = new StackPane(root);
+        background.getStyleClass().add("app-background");
         if (stage.getScene() == null) {
-            stage.setScene(new Scene(root, 360, 480));
+            Scene scene = new Scene(background, 440, 580);
+            scene.getStylesheets().add(getClass().getResource("/app.css").toExternalForm());
+            stage.setScene(scene);
         } else {
-            stage.getScene().setRoot(root);
+            stage.getScene().setRoot(background);
         }
     }
 

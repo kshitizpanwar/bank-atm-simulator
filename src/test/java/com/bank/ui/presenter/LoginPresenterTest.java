@@ -54,12 +54,13 @@ class LoginPresenterTest {
     /** Minimal fake view returning canned inputs and recording the last error. */
     static class FakeLoginView implements LoginView {
         String account = "", pin = "", error;
-        Runnable onLogin = () -> {}, onOpen = () -> {};
+        Runnable onLogin = () -> {}, onOpen = () -> {}, onBack = () -> {};
         @Override public String getAccountNumber() { return account; }
         @Override public String getPin() { return pin; }
         @Override public void showError(String m) { error = m; }
         @Override public void setOnLogin(Runnable h) { onLogin = h; }
         @Override public void setOnOpenAccount(Runnable h) { onOpen = h; }
+        @Override public void setOnBack(Runnable h) { onBack = h; }
     }
 
     private Account openAccount() {
@@ -111,5 +112,16 @@ class LoginPresenterTest {
 
         assertEquals("Enter a valid number.", view.error);
         assertFalse(nav.menuShown);
+    }
+
+    @Test
+    void backReturnsToRoleSelect() {
+        FakeLoginView view = new FakeLoginView();
+        FakeNavigator nav = new FakeNavigator();
+        new LoginPresenter(view, auth, nav, new Session());
+
+        view.onBack.run();
+
+        assertTrue(nav.roleSelectShown);
     }
 }

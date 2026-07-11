@@ -6,4 +6,5 @@ public interface LoginView {
     void showError(String message);
     void setOnLogin(Runnable handler);
     void setOnOpenAccount(Runnable handler);
+    void setOnBack(Runnable handler);
 }

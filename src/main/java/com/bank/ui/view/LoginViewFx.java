@@ -14,6 +14,7 @@ public class LoginViewFx implements LoginView {
     private final PasswordField pinField = new PasswordField();
     private final Button loginButton = new Button("Login");
     private final Button openButton = new Button("Open New Account");
+    private final Button backButton = new Button("Back");
     private final Label errorLabel = new Label();
     private final VBox root = new VBox(10);
 
@@ -23,7 +24,7 @@ public class LoginViewFx implements LoginView {
         pinField.setPromptText("PIN");
         errorLabel.setStyle("-fx-text-fill: red;");
         root.getChildren().addAll(new Label("ATM Login"), accountField, pinField,
-                loginButton, openButton, errorLabel);
+                loginButton, openButton, backButton, errorLabel);
     }
 
     public Parent getRoot() {
@@ -35,4 +36,5 @@ public class LoginViewFx implements LoginView {
     @Override public void showError(String message) { errorLabel.setText(message); }
     @Override public void setOnLogin(Runnable handler) { loginButton.setOnAction(e -> handler.run()); }
     @Override public void setOnOpenAccount(Runnable handler) { openButton.setOnAction(e -> handler.run()); }
+    @Override public void setOnBack(Runnable handler) { backButton.setOnAction(e -> handler.run()); }
 }

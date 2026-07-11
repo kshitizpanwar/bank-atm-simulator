@@ -1,6 +1,7 @@
 package com.bank.ui;
 
 public interface Navigator {
+    void showRoleSelect();
     void showLogin();
     void showOpenAccount();
     void showMenu();

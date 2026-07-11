@@ -1,9 +1,10 @@
 package com.bank.ui;
 
 public class FakeNavigator implements Navigator {
-    public boolean loginShown, openAccountShown, menuShown, balanceShown,
+    public boolean roleSelectShown, loginShown, openAccountShown, menuShown, balanceShown,
             depositShown, withdrawShown, transferShown, miniStatementShown, changePinShown;
 
+    @Override public void showRoleSelect() { roleSelectShown = true; }
     @Override public void showLogin() { loginShown = true; }
     @Override public void showOpenAccount() { openAccountShown = true; }
     @Override public void showMenu() { menuShown = true; }

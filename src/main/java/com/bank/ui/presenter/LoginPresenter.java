@@ -22,6 +22,7 @@ public class LoginPresenter {
         this.session = session;
         view.setOnLogin(this::login);
         view.setOnOpenAccount(navigator::showOpenAccount);
+        view.setOnBack(navigator::showRoleSelect);
     }
 
     public void login() {

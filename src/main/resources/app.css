@@ -1,0 +1,70 @@
+/* Modern light "bank blue" theme. Applied app-wide via the Scene stylesheet
+   loaded in App; targets JavaFX default control selectors so every screen is
+   styled without touching any view or presenter. */
+
+.app-background {
+    -fx-background-color: #eef1f6;
+    -fx-padding: 24;
+}
+
+/* Each screen's root VBox gets the "card" class (added in App.setRoot). */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-max-width: 380;
+    -fx-max-height: 560;
+    -fx-effect: dropshadow(gaussian, rgba(20, 40, 80, 0.18), 20, 0, 0, 8);
+}
+
+.label {
+    -fx-text-fill: #2b2f36;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+.button {
+    -fx-background-color: #1a73e8;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 18 8 18;
+    -fx-cursor: hand;
+}
+.button:hover  { -fx-background-color: #1765cc; }
+.button:pressed { -fx-background-color: #14559f; }
+
+.text-field, .password-field {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #d4d9e0;
+    -fx-border-width: 1;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+}
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #1a73e8;
+    -fx-border-width: 2;
+}
+
+.choice-box {
+    -fx-background-color: #f2f4f8;
+    -fx-background-radius: 8;
+    -fx-padding: 4 8 4 8;
+}
+
+.list-view {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #d4d9e0;
+    -fx-border-width: 1;
+    -fx-background-insets: 0;
+}
+.list-cell {
+    -fx-padding: 8;
+    -fx-font-size: 12px;
+}
+.list-cell:filled:selected {
+    -fx-background-color: #d6e4ff;
+    -fx-text-fill: #14315e;
+}
