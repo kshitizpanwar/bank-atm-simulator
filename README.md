@@ -1,7 +1,8 @@
 # Bank Management System & ATM Simulator
 
 Java + MySQL + JavaFX banking / ATM simulator, built in stages.
-**Stage 1 (current):** database foundation — schema, connection, model, DAO layer.
+**Stage 2 (current):** service layer — transactional business logic, authentication, BCrypt PIN/password hashing.
+Stage 1 (done): database foundation — schema, connection, model, DAO layer.
 
 ## Prerequisites
 - Java 17, Maven 3.9+, MySQL 9.x running on localhost:3306
@@ -24,6 +25,8 @@ mvn test        # run the DAO/DB test suite against bank_test
 ```
 
 ## Layout
-- `com.bank.model` — Account, Transaction, enums (data carriers)
-- `com.bank.db`    — Database (config/connection), SchemaInitializer
-- `com.bank.dao`   — AccountDao / TransactionDao interfaces + JDBC implementations
+- `com.bank.model`    — Account, Transaction, Admin, enums (data carriers)
+- `com.bank.db`       — Database (config/connection), SchemaInitializer, UnitOfWork (transactions)
+- `com.bank.dao`      — AccountDao / TransactionDao / AdminDao (connection-aware JDBC)
+- `com.bank.security` — PasswordHasher (BCrypt)
+- `com.bank.service`  — AccountService, AuthService, BankServiceException hierarchy
