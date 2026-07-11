@@ -92,6 +92,7 @@ class AdminOpenAccountPresenterTest {
 
         assertEquals("PIN must be exactly 4 digits.", view.error);
         assertEquals(0, accountCount());
+        assertNull(view.message);
     }
 
     @Test
@@ -107,5 +108,6 @@ class AdminOpenAccountPresenterTest {
 
         assertEquals("Enter a valid number.", view.error);
         assertEquals(0, accountCount());
+        assertNull(view.message);
     }
 }

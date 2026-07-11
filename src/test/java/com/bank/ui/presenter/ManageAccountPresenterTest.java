@@ -91,6 +91,7 @@ class ManageAccountPresenterTest {
         presenter.block();
 
         assertEquals(AccountStatus.BLOCKED, accounts.getAccount(a.getAccountNumber()).getStatus());
+        assertNotNull(view.details);
     }
 
     @Test
@@ -103,5 +104,6 @@ class ManageAccountPresenterTest {
         presenter.close();
 
         assertEquals(AccountStatus.CLOSED, accounts.getAccount(a.getAccountNumber()).getStatus());
+        assertNotNull(view.details);
     }
 }
