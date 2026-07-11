@@ -34,6 +34,17 @@ public class AccountDaoJdbc implements AccountDao {
     }
 
     @Override
+    public void delete(Connection c, long accountNumber) {
+        try (PreparedStatement ps =
+                     c.prepareStatement("DELETE FROM accounts WHERE account_number = ?")) {
+            ps.setLong(1, accountNumber);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("delete account failed", e);
+        }
+    }
+
+    @Override
     public Optional<Account> findByAccountNumber(Connection c, long accountNumber) {
         String sql = "SELECT account_number, holder_name, pin, balance, account_type, status, created_at "
                 + "FROM accounts WHERE account_number = ?";

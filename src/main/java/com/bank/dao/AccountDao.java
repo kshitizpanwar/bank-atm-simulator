@@ -15,4 +15,5 @@ public interface AccountDao {
     void updateBalance(Connection c, long accountNumber, BigDecimal newBalance);
     void updatePin(Connection c, long accountNumber, String newPinHash);
     void updateStatus(Connection c, long accountNumber, AccountStatus status);
+    void delete(Connection c, long accountNumber);
 }

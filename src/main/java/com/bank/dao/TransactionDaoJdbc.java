@@ -41,6 +41,17 @@ public class TransactionDaoJdbc implements TransactionDao {
         return query(c, sql, accountNumber, limit);
     }
 
+    @Override
+    public void deleteByAccountNumber(Connection c, long accountNumber) {
+        try (PreparedStatement ps =
+                     c.prepareStatement("DELETE FROM transactions WHERE account_number = ?")) {
+            ps.setLong(1, accountNumber);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("delete transactions failed", e);
+        }
+    }
+
     private List<Transaction> query(Connection c, String sql, long accountNumber, Integer limit) {
         List<Transaction> result = new ArrayList<>();
         try (PreparedStatement ps = c.prepareStatement(sql)) {

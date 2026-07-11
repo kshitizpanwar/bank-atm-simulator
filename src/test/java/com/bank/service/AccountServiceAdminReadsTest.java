@@ -62,4 +62,30 @@ class AccountServiceAdminReadsTest {
         assertEquals(3, service.accountHistory(a.getAccountNumber()).size());
         assertThrows(AccountNotFoundException.class, () -> service.accountHistory(1L));
     }
+
+    @Test
+    void deleteAccountRemovesAccountAndItsTransactions() {
+        Account a = service.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        service.deposit(a.getAccountNumber(), new BigDecimal("10.00"));
+
+        service.deleteAccount(a.getAccountNumber());
+
+        assertThrows(AccountNotFoundException.class, () -> service.getAccount(a.getAccountNumber()));
+        long txCount = uow.execute(c -> {
+            try (Statement st = c.createStatement();
+                 var rs = st.executeQuery(
+                         "SELECT COUNT(*) FROM transactions WHERE account_number=" + a.getAccountNumber())) {
+                rs.next();
+                return rs.getLong(1);
+            } catch (SQLException e) {
+                throw new DaoException("count", e);
+            }
+        });
+        assertEquals(0, txCount);
+    }
+
+    @Test
+    void deleteAccountUnknownThrows() {
+        assertThrows(AccountNotFoundException.class, () -> service.deleteAccount(1L));
+    }
 }

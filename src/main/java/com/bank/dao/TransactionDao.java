@@ -9,4 +9,5 @@ public interface TransactionDao {
     void insert(Connection c, Transaction transaction);
     List<Transaction> findByAccountNumber(Connection c, long accountNumber);
     List<Transaction> findRecent(Connection c, long accountNumber, int limit);
+    void deleteByAccountNumber(Connection c, long accountNumber);
 }

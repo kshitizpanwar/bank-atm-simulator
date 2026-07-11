@@ -132,6 +132,14 @@ public class AccountService {
         });
     }
 
+    public void deleteAccount(long acct) {
+        uow.executeVoid(c -> {
+            loadOrThrow(c, acct);
+            transactionDao.deleteByAccountNumber(c, acct);
+            accountDao.delete(c, acct);
+        });
+    }
+
     public void changePin(long acct, String oldPin, String newPin) {
         requireValidPin(newPin);
         uow.executeVoid(c -> {

@@ -17,14 +17,17 @@ public class ManageAccountPresenter {
     private final ManageAccountView view;
     private final AccountService accountService;
     private final AdminSession session;
+    private final AdminNavigator navigator;
 
     public ManageAccountPresenter(ManageAccountView view, AccountService accountService,
                                   AdminSession session, AdminNavigator navigator) {
         this.view = view;
         this.accountService = accountService;
         this.session = session;
+        this.navigator = navigator;
         view.setOnBlock(this::block);
         view.setOnClose(this::close);
+        view.setOnDelete(this::delete);
         view.setOnBack(navigator::showAllAccounts);
     }
 
@@ -41,6 +44,23 @@ public class ManageAccountPresenter {
                         + "  (balance " + t.getBalanceAfter() + ")");
             }
             view.showHistory(lines);
+        } catch (BankServiceException e) {
+            view.showError(Messages.of(e));
+        } catch (RuntimeException e) {
+            view.showError("Something went wrong. Please try again.");
+        }
+    }
+
+    public void delete() {
+        long acct = session.requireSelectedAccount();
+        view.confirmDelete("Delete account " + acct + "? This cannot be undone.",
+                () -> performDelete(acct));
+    }
+
+    private void performDelete(long acct) {
+        try {
+            accountService.deleteAccount(acct);
+            navigator.showAllAccounts();
         } catch (BankServiceException e) {
             view.showError(Messages.of(e));
         } catch (RuntimeException e) {

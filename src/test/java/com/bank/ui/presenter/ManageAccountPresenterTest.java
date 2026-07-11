@@ -10,6 +10,7 @@ import com.bank.model.Account;
 import com.bank.model.AccountStatus;
 import com.bank.model.AccountType;
 import com.bank.security.PasswordHasher;
+import com.bank.service.AccountNotFoundException;
 import com.bank.service.AccountService;
 import com.bank.ui.AdminSession;
 import com.bank.ui.FakeAdminNavigator;
@@ -47,16 +48,22 @@ class ManageAccountPresenterTest {
     }
 
     static class FakeManageAccountView implements ManageAccountView {
-        String details, message, error;
+        String details, message, error, confirmMessage;
         List<String> history;
-        Runnable onBlock = () -> {}, onClose = () -> {}, onBack = () -> {};
+        boolean autoConfirm = true;
+        Runnable onBlock = () -> {}, onClose = () -> {}, onDelete = () -> {}, onBack = () -> {};
         @Override public void showDetails(String d) { details = d; }
         @Override public void showHistory(List<String> h) { history = h; }
         @Override public void showMessage(String m) { message = m; }
         @Override public void showError(String m) { error = m; }
         @Override public void setOnBlock(Runnable h) { onBlock = h; }
         @Override public void setOnClose(Runnable h) { onClose = h; }
+        @Override public void setOnDelete(Runnable h) { onDelete = h; }
         @Override public void setOnBack(Runnable h) { onBack = h; }
+        @Override public void confirmDelete(String message, Runnable onConfirmed) {
+            confirmMessage = message;
+            if (autoConfirm) onConfirmed.run();
+        }
     }
 
     private AdminSession sessionFor(long acct) {
@@ -105,5 +112,35 @@ class ManageAccountPresenterTest {
 
         assertEquals(AccountStatus.CLOSED, accounts.getAccount(a.getAccountNumber()).getStatus());
         assertNotNull(view.details);
+    }
+
+    @Test
+    void deleteConfirmedRemovesAccountAndReturnsToList() {
+        Account a = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        FakeManageAccountView view = new FakeManageAccountView();
+        FakeAdminNavigator nav = new FakeAdminNavigator();
+        ManageAccountPresenter presenter =
+                new ManageAccountPresenter(view, accounts, sessionFor(a.getAccountNumber()), nav);
+
+        presenter.delete();
+
+        assertNotNull(view.confirmMessage);
+        assertThrows(AccountNotFoundException.class, () -> accounts.getAccount(a.getAccountNumber()));
+        assertTrue(nav.allAccountsShown);
+    }
+
+    @Test
+    void deleteCancelledKeepsAccount() {
+        Account a = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        FakeManageAccountView view = new FakeManageAccountView();
+        view.autoConfirm = false;
+        FakeAdminNavigator nav = new FakeAdminNavigator();
+        ManageAccountPresenter presenter =
+                new ManageAccountPresenter(view, accounts, sessionFor(a.getAccountNumber()), nav);
+
+        presenter.delete();
+
+        assertEquals(a.getAccountNumber(), accounts.getAccount(a.getAccountNumber()).getAccountNumber());
+        assertFalse(nav.allAccountsShown);
     }
 }
