@@ -7,6 +7,7 @@ public interface OpenAccountView {
     String getOpeningBalance();
     void showError(String message);
     void showMessage(String message);
+    void setCreatedAccount(String accountNumber);
     void setOnSubmit(Runnable handler);
     void setOnBack(Runnable handler);
 }

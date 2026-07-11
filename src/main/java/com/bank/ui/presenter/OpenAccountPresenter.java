@@ -41,6 +41,7 @@ public class OpenAccountPresenter {
         }
         try {
             Account account = accountService.openAccount(view.getHolderName(), view.getPin(), type, opening);
+            view.setCreatedAccount(String.valueOf(account.getAccountNumber()));
             view.showMessage("Account created. Your number is " + account.getAccountNumber());
         } catch (BankServiceException e) {
             view.showError(Messages.of(e));

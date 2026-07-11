@@ -41,7 +41,7 @@ class OpenAccountPresenterTest {
     }
 
     static class FakeOpenAccountView implements OpenAccountView {
-        String name = "", type = "SAVINGS", pin = "", opening = "", error, message;
+        String name = "", type = "SAVINGS", pin = "", opening = "", error, message, createdAccount;
         Runnable onSubmit = () -> {}, onBack = () -> {};
         @Override public String getHolderName() { return name; }
         @Override public String getAccountType() { return type; }
@@ -49,6 +49,7 @@ class OpenAccountPresenterTest {
         @Override public String getOpeningBalance() { return opening; }
         @Override public void showError(String m) { error = m; }
         @Override public void showMessage(String m) { message = m; }
+        @Override public void setCreatedAccount(String n) { createdAccount = n; }
         @Override public void setOnSubmit(Runnable h) { onSubmit = h; }
         @Override public void setOnBack(Runnable h) { onBack = h; }
     }
@@ -66,6 +67,8 @@ class OpenAccountPresenterTest {
 
         assertNull(view.error);
         assertNotNull(view.message, "should show the new account number");
+        assertNotNull(view.createdAccount, "should expose the new number for copying");
+        assertTrue(view.createdAccount.matches("\\d+"));
         long count = uow.execute(c -> {
             try (Statement st = c.createStatement();
                  var rs = st.executeQuery("SELECT COUNT(*) FROM accounts")) {
