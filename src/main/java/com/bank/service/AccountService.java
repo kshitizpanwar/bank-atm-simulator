@@ -117,6 +117,31 @@ public class AccountService {
         });
     }
 
+    public void changePin(long acct, String oldPin, String newPin) {
+        requireValidPin(newPin);
+        uow.executeVoid(c -> {
+            Account a = loadOrThrow(c, acct);
+            if (!hasher.verify(oldPin, a.getPin())) {
+                throw new AuthenticationException("current PIN is incorrect");
+            }
+            accountDao.updatePin(c, acct, hasher.hash(newPin));
+        });
+    }
+
+    public void blockAccount(long acct) {
+        uow.executeVoid(c -> {
+            loadOrThrow(c, acct);
+            accountDao.updateStatus(c, acct, AccountStatus.BLOCKED);
+        });
+    }
+
+    public void closeAccount(long acct) {
+        uow.executeVoid(c -> {
+            loadOrThrow(c, acct);
+            accountDao.updateStatus(c, acct, AccountStatus.CLOSED);
+        });
+    }
+
     // ---- helpers (shared with lifecycle/PIN operations) ----
 
     Account loadOrThrow(Connection c, long acct) {
