@@ -84,4 +84,12 @@ class AccountLifecycleTest {
         assertThrows(AccountNotActiveException.class,
                 () -> service.deposit(a.getAccountNumber(), new BigDecimal("10.00")));
     }
+
+    @Test
+    void blockedAccountCannotChangePin() {
+        Account a = open();
+        service.blockAccount(a.getAccountNumber());
+        assertThrows(AccountNotActiveException.class,
+                () -> service.changePin(a.getAccountNumber(), "1234", "5678"));
+    }
 }

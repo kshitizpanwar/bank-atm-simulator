@@ -121,6 +121,7 @@ public class AccountService {
         requireValidPin(newPin);
         uow.executeVoid(c -> {
             Account a = loadOrThrow(c, acct);
+            requireActive(a);
             if (!hasher.verify(oldPin, a.getPin())) {
                 throw new AuthenticationException("current PIN is incorrect");
             }
