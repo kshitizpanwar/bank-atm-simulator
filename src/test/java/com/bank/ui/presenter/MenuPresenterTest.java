@@ -33,6 +33,14 @@ class MenuPresenterTest {
         assertTrue(nav.balanceShown);
         assertTrue(nav.depositShown);
         assertTrue(nav.transferShown);
+
+        view.onWithdraw.run();
+        view.onMiniStatement.run();
+        view.onChangePin.run();
+
+        assertTrue(nav.withdrawShown);
+        assertTrue(nav.miniStatementShown);
+        assertTrue(nav.changePinShown);
     }
 
     @Test
