@@ -86,5 +86,22 @@ class TransferPresenterTest {
         presenter.submit();
 
         assertEquals("Enter a valid number.", view.error);
+        assertNull(view.message);
+    }
+
+    @Test
+    void nonNumericAmountShowsValidationError() {
+        Account from = accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        Session session = new Session();
+        session.setAccount(from.getAccountNumber());
+        FakeTransferView view = new FakeTransferView();
+        TransferPresenter presenter = new TransferPresenter(view, accounts, session, new FakeNavigator());
+        view.target = String.valueOf(from.getAccountNumber());
+        view.amount = "abc";
+
+        presenter.submit();
+
+        assertEquals("Enter a valid number.", view.error);
+        assertNull(view.message);
     }
 }

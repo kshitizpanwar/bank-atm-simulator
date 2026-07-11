@@ -73,6 +73,7 @@ class DepositPresenterTest {
         assertNull(view.error);
         assertEquals(0, new BigDecimal("150.00").compareTo(accounts.getBalance(session.requireAccount())));
         assertNotNull(view.message);
+        assertTrue(view.message.contains("150"));
     }
 
     @Test
@@ -85,6 +86,7 @@ class DepositPresenterTest {
         presenter.submit();
 
         assertEquals("Enter a valid amount greater than zero.", view.error);
+        assertEquals(0, new BigDecimal("100.00").compareTo(accounts.getBalance(session.requireAccount())));
     }
 
     @Test
@@ -97,5 +99,6 @@ class DepositPresenterTest {
         presenter.submit();
 
         assertEquals("Enter a valid number.", view.error);
+        assertEquals(0, new BigDecimal("100.00").compareTo(accounts.getBalance(session.requireAccount())));
     }
 }

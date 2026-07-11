@@ -71,4 +71,17 @@ class MiniStatementPresenterTest {
         // opening deposit + deposit + withdraw = 3 transactions
         assertEquals(3, view.lines.size());
     }
+
+    @Test
+    void unknownAccountShowsError() {
+        Session session = new Session();
+        session.setAccount(1L); // never created
+        FakeMiniStatementView view = new FakeMiniStatementView();
+        MiniStatementPresenter presenter = new MiniStatementPresenter(view, accounts, session, new FakeNavigator());
+
+        presenter.load();
+
+        assertEquals("Account not found.", view.error);
+        assertNull(view.lines);
+    }
 }

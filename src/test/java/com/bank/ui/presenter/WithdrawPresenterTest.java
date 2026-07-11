@@ -86,4 +86,17 @@ class WithdrawPresenterTest {
         assertEquals("Insufficient funds.", view.error);
         assertEquals(0, new BigDecimal("20.00").compareTo(accounts.getBalance(session.requireAccount())));
     }
+
+    @Test
+    void nonNumericAmountShowsValidationError() {
+        Session session = sessionFor("100.00");
+        FakeWithdrawView view = new FakeWithdrawView();
+        WithdrawPresenter presenter = new WithdrawPresenter(view, accounts, session, new FakeNavigator());
+        view.amount = "abc";
+
+        presenter.submit();
+
+        assertEquals("Enter a valid number.", view.error);
+        assertEquals(0, new BigDecimal("100.00").compareTo(accounts.getBalance(session.requireAccount())));
+    }
 }
