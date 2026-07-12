@@ -20,7 +20,7 @@ public class AdminOpenAccountPresenter {
         this.view = view;
         this.accountService = accountService;
         view.setOnSubmit(this::submit);
-        view.setOnBack(navigator::showAdminMenu);
+        view.setOnBack(navigator::showAdminHome);
     }
 
     public void submit() {
