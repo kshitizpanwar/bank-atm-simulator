@@ -4,6 +4,7 @@ public interface AdminNavigator {
     void showRoleSelect();
     void showAdminLogin();
     void showAdminMenu();
+    void showAdminHome();
     void showAllAccounts();
     void showAdminOpenAccount();
     void showManageAccount(long accountNumber);
