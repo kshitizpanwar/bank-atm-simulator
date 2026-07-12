@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -27,8 +28,14 @@ public class AllAccountsViewFx implements AllAccountsView {
 
     public AllAccountsViewFx() {
         TableColumn<AccountRow, String> noCol = new TableColumn<>("No");
-        noCol.setCellValueFactory(cd -> new ReadOnlyStringWrapper(
-                String.valueOf(table.getItems().indexOf(cd.getValue()) + 1)));
+        noCol.setCellValueFactory(cd -> new ReadOnlyStringWrapper(""));
+        noCol.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : String.valueOf(getIndex() + 1));
+            }
+        });
         TableColumn<AccountRow, String> acctCol = new TableColumn<>("Account #");
         acctCol.setCellValueFactory(cd -> new ReadOnlyStringWrapper(String.valueOf(cd.getValue().accountNumber())));
         TableColumn<AccountRow, String> holderCol = new TableColumn<>("Holder");
