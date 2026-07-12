@@ -23,17 +23,23 @@ public class AllAccountsPresenter {
         this.accountService = accountService;
         this.session = session;
         this.navigator = navigator;
+        view.setOnSearch(this::search);
         view.setOnManage(this::manage);
-        view.setOnBack(navigator::showAdminMenu);
     }
 
     public void load() {
+        search("");
+    }
+
+    public void search(String query) {
         try {
+            String q = query == null ? "" : query.trim().toLowerCase();
             List<AccountRow> rows = new ArrayList<>();
             for (Account a : accountService.listAllAccounts()) {
-                rows.add(new AccountRow(a.getAccountNumber(),
-                        a.getAccountNumber() + "  " + a.getHolderName() + "  " + a.getAccountType()
-                                + "  " + a.getBalance() + "  " + a.getStatus()));
+                if (q.isEmpty() || a.getHolderName().toLowerCase().contains(q)) {
+                    rows.add(new AccountRow(a.getAccountNumber(), a.getHolderName(),
+                            a.getAccountType().name(), a.getBalance().toString(), a.getStatus().name()));
+                }
             }
             view.showAccounts(rows);
         } catch (RuntimeException e) {

@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,16 +51,17 @@ class AllAccountsPresenterTest {
         List<AccountRow> rows;
         String error;
         AccountRow selected;
-        Runnable onManage = () -> {}, onBack = () -> {};
+        Consumer<String> onSearch = q -> {};
+        Runnable onManage = () -> {};
         @Override public void showAccounts(List<AccountRow> r) { rows = r; }
         @Override public void showError(String m) { error = m; }
         @Override public AccountRow getSelected() { return selected; }
+        @Override public void setOnSearch(Consumer<String> h) { onSearch = h; }
         @Override public void setOnManage(Runnable h) { onManage = h; }
-        @Override public void setOnBack(Runnable h) { onBack = h; }
     }
 
     @Test
-    void loadRendersOneRowPerAccount() {
+    void loadRendersOneStructuredRowPerAccount() {
         accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
         accounts.openAccount("Ben", "5678", AccountType.CURRENT, new BigDecimal("0.00"));
         FakeAllAccountsView view = new FakeAllAccountsView();
@@ -70,6 +72,23 @@ class AllAccountsPresenterTest {
 
         assertNull(view.error);
         assertEquals(2, view.rows.size());
+        AccountRow r = view.rows.stream().filter(x -> x.holderName().equals("Asha")).findFirst().orElseThrow();
+        assertEquals("SAVINGS", r.accountType());
+        assertEquals("ACTIVE", r.status());
+    }
+
+    @Test
+    void searchFiltersByHolderName() {
+        accounts.openAccount("Asha", "1234", AccountType.SAVINGS, new BigDecimal("100.00"));
+        accounts.openAccount("Ben", "5678", AccountType.CURRENT, new BigDecimal("0.00"));
+        FakeAllAccountsView view = new FakeAllAccountsView();
+        AllAccountsPresenter presenter =
+                new AllAccountsPresenter(view, accounts, new AdminSession(), new FakeAdminNavigator());
+
+        presenter.search("as");
+
+        assertEquals(1, view.rows.size());
+        assertEquals("Asha", view.rows.get(0).holderName());
     }
 
     @Test
@@ -79,7 +98,7 @@ class AllAccountsPresenterTest {
         AdminSession session = new AdminSession();
         FakeAdminNavigator nav = new FakeAdminNavigator();
         AllAccountsPresenter presenter = new AllAccountsPresenter(view, accounts, session, nav);
-        view.selected = new AccountRow(a.getAccountNumber(), "row");
+        view.selected = new AccountRow(a.getAccountNumber(), "Asha", "SAVINGS", "100.00", "ACTIVE");
 
         presenter.manage();
 
