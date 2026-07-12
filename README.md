@@ -1,8 +1,8 @@
 # Bank Management System & ATM Simulator
 
 Java + MySQL + JavaFX banking / ATM simulator, built in stages.
-**Stage 4 (current):** Admin GUI (JavaFX, MVP) — role-select landing, admin login, list all accounts, open account, block/close, view an account's history.
-Stage 3 (done): Customer ATM GUI. Stage 2 (done): service layer. Stage 1 (done): database foundation.
+**Admin dashboard (current):** after admin login, a sidebar dashboard — Home (account summary), All Accounts (searchable table), Open Account — with the account Manage panel (block/close/unblock/reopen/delete/history) in the content area.
+Stages 1–4 (done): DB foundation, service layer, customer ATM GUI, admin GUI.
 
 ## Prerequisites
 - Java 17, Maven 3.9+, MySQL 9.x running on localhost:3306
@@ -22,7 +22,7 @@ Tables are created automatically by `SchemaInitializer` (runs `schema.sql`).
 ```bash
 mvn javafx:run
 ```
-Launches to a **role select** screen. Choose **Customer** for the ATM, or **Admin** and log in with the seeded default **admin / admin123** (auto-created on first run; change it in production). Requires the `bank` database and valid credentials in `src/main/resources/db.properties`; tables and the default admin are created automatically.
+Role select → **Admin** → log in `admin` / `admin123` → dashboard. **Customer** → the ATM flow (unchanged).
 
 ## Build & test
 ```bash
